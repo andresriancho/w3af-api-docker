@@ -1,2 +1,25 @@
-# w3af-api-docker
-Docker image for w3af REST API with nginx, uwsgi and supervisord
+## w3af REST API
+
+Docker image for w3af REST API with nginx, uwsgi and supervisord.
+[![Circle CI](https://circleci.com/gh/andresriancho/w3af-api-docker.svg?style=svg)](https://circleci.com/gh/andresriancho/w3af-api-docker)
+
+## Benefits
+
+Most users can just use `./w3af_api` from [the main w3af repository](https://github.com/andresriancho/w3af)
+but advanced users might need to have an environment that can handle more traffic,
+auto-restarts the service if it's down, etc.
+ 
+## Running this image
+
+```bash
+sudo docker run andresriancho/w3af-api-docker
+```
+
+## Services
+
+ * The w3af REST API binds at port `5000`
+ * Supervisor daemon binds at port `9001`
+ 
+## TODO
+
+ * [TLS configuration for nginx](https://github.com/andresriancho/w3af-api-docker/issues/1)
