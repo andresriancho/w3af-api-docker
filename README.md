@@ -16,7 +16,7 @@ sudo docker run -v ~/.w3af:/root/.w3af \
                 -v ~/w3af-shared:/root/w3af-shared \
                 -p 5000:5000 \
                 -p 9001:9001 \
-                andresriancho/w3af-api-docker
+                andresriancho/w3af-api
 ```
 
 ## Services
