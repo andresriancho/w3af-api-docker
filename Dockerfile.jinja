@@ -1,0 +1,45 @@
+# A container which runs w3af's REST API
+FROM andresriancho/w3af:{{ w3af_commit }}-{{ environment }}
+
+MAINTAINER Andres Riancho version: 0.1
+
+# Setup apt
+RUN dpkg --configure -a
+RUN apt-get update
+
+RUN apt-get install -y software-properties-common python-software-properties
+RUN add-apt-repository -y ppa:nginx/stable
+RUN apt-get update
+
+# Install required packages
+RUN apt-get install -y nginx supervisor curl
+
+# Basic nginx configuration
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+RUN rm /etc/nginx/sites-enabled/default
+
+# copy our code and configuration parameters
+ADD config/ /home/w3af/w3af/config/
+WORKDIR /home/w3af/w3af/
+
+RUN ln -s /home/w3af/w3af/config/nginx.conf /etc/nginx/sites-enabled/
+
+# We want supervisord to run nginx and w3af
+RUN ln -s /home/w3af/w3af/config/supervisord-nginx.conf /etc/supervisor/conf.d/
+RUN ln -s /home/w3af/w3af/config/supervisord-w3af.conf /etc/supervisor/conf.d/
+
+# Expose the XML-RPC from supervisord
+RUN rm /etc/supervisor/supervisord.conf
+RUN mv /home/w3af/w3af/config/supervisord.conf /etc/supervisor/
+
+# Cleanup to reduce image size
+RUN apt-get clean
+RUN rm -rf /var/lib/apt/lists/*
+RUN rm -rf /tmp/pip-build-root
+
+# I want to expose the w3af REST API and supervisord
+EXPOSE 5000
+EXPOSE 9001
+
+# RUN supervisord with our configuration so that the daemons are started
+CMD ["supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
