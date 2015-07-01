@@ -29,13 +29,12 @@ dependencies:
     # Wait for background processes to start
     - sleep 10
 
-
-test:
-  override:
     # Render the Dockerfile to use the right FROM statement
     - ci/render-dockerfile.py
     - cp Dockerfile $CIRCLE_ARTIFACTS
-    
+
+test:
+  override:
     # Build docker image containing w3af, nginx, uwsgi and supervisord
     - docker build -t andresriancho/w3af-api .
 
