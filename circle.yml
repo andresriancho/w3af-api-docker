@@ -50,18 +50,17 @@ deployment:
     branch: master
     owner: andresriancho
     commands:
-      - docker tag andresriancho/w3af-api andresriancho/w3af-api:stable
-      - docker tag andresriancho/w3af-api andresriancho/w3af-api:${W3AF_COMMIT}-stable
+      - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:${W3AF_COMMIT}-master
 
-      - docker push andresriancho/w3af-api:stable
-      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-stable
+      - docker push andresriancho/w3af-api:latest
+      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-master
 
   staging:
     branch: develop
     owner: andresriancho
     commands:
-      - docker tag andresriancho/w3af-api andresriancho/w3af-api:unstable
-      - docker tag andresriancho/w3af-api andresriancho/w3af-api:${W3AF_COMMIT}-unstable
+      - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:develop
+      - docker tag andresriancho/w3af-api:develop andresriancho/w3af-api:${W3AF_COMMIT}-develop
 
-      - docker push andresriancho/w3af-api:unstable
-      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-unstable
+      - docker push andresriancho/w3af-api:develop
+      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-develop
