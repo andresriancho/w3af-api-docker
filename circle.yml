@@ -34,7 +34,8 @@ test:
   override:
     # Render the Dockerfile to use the right FROM statement
     - ci/render-dockerfile.py
-
+    - cp Dockerfile $CIRCLE_ARTIFACTS
+    
     # Build docker image containing w3af, nginx, uwsgi and supervisord
     - docker build -t andresriancho/w3af-api .
 
