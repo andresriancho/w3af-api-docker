@@ -1,0 +1,67 @@
+machine:
+  services:
+    - docker
+
+  python:
+    version: 2.7.3
+
+dependencies:
+  cache_directories:
+    # Cache the directory to avoid delays in downloading the source each time
+    - "~/docker"
+
+  pre:
+    # And we want to start the django-moth docker instance
+    - if [[ -e ~/docker/moth.tar ]]; then docker load -i ~/docker/moth.tar; fi
+    - docker pull andresriancho/django-moth
+    - mkdir -p ~/docker; docker save andresriancho/django-moth > ~/docker/moth.tar
+
+    # Cache the w3af image we'll use as base for w3af-api, we do a pull after
+    # the load just to make sure the latest is present.
+    - if [[ -e ~/docker/w3af.tar ]]; then docker load -i ~/docker/w3af.tar; fi
+    - docker pull andresriancho/w3af:unstable
+    - mkdir -p ~/docker; docker save andresriancho/w3af:unstable > ~/docker/w3af.tar
+
+    # https://circleci.com/docs/background-process
+    - "docker run -p 8000:8000 andresriancho/django-moth":
+        background: true
+
+    # Wait for background processes to start
+    - sleep 10
+
+
+test:
+  override:
+    # Render the Dockerfile to use the right FROM statement
+    - ci/render-dockerfile.py
+
+    # Build docker image containing w3af, nginx, uwsgi and supervisord
+    - docker build -t andresriancho/w3af-api .
+
+    # Run smoke test on docker image
+    - ci/smoke-test.sh
+
+    # Save docker hub credentials to file
+    - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ci/dockercfg.template > ~/.dockercfg
+
+
+deployment:
+  production:
+    branch: master
+    owner: andresriancho
+    commands:
+      - docker tag andresriancho/w3af-api andresriancho/w3af-api:stable
+      - docker tag andresriancho/w3af-api andresriancho/w3af-api:${W3AF_COMMIT}-stable
+
+      - docker push andresriancho/w3af-api:stable
+      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-stable
+
+  staging:
+    branch: develop
+    owner: andresriancho
+    commands:
+      - docker tag andresriancho/w3af-api andresriancho/w3af-api:unstable
+      - docker tag andresriancho/w3af-api andresriancho/w3af-api:${W3AF_COMMIT}-unstable
+
+      - docker push andresriancho/w3af-api:unstable
+      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-unstable

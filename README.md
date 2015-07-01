@@ -1,6 +1,6 @@
 ## w3af REST API
 
-Docker image for w3af REST API with nginx, uwsgi and supervisord.
+Docker image for w3af's REST API, nginx, supervisord.
 [![Circle CI](https://circleci.com/gh/andresriancho/w3af-api-docker.svg?style=svg)](https://circleci.com/gh/andresriancho/w3af-api-docker)
 
 ## Benefits
@@ -12,7 +12,11 @@ auto-restarts the service if it's down, etc.
 ## Running this image
 
 ```bash
-sudo docker run andresriancho/w3af-api-docker
+sudo docker run -v ~/.w3af:/root/.w3af \
+                -v ~/w3af-shared:/root/w3af-shared \
+                -p 5000:5000 \
+                -p 9001:9001 \
+                andresriancho/w3af-api-docker
 ```
 
 ## Services
