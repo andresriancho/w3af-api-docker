@@ -6,7 +6,7 @@ import os
 import sys
 
 from jinja2 import Template
-from docker_tag_naming import get_latest_tag
+from docker_tag_naming.utils import get_latest_version
 
 OUTPUT_FILE = 'Dockerfile'
 INPUT_FILE = 'Dockerfile.jinja'
@@ -19,41 +19,42 @@ def main():
     :return: None, Dockerfile is created.
     """
     current_branch = os.environ.get('CIRCLE_BRANCH')
-    latest_w3af_commit = os.environ.get('W3AF_COMMIT', None)
+    latest_tag = os.environ.get('W3AF_REGISTRY_TAG', None)
 
-    if latest_w3af_commit is None:
-        latest_w3af_commit = get_latest_tag('andresriancho/w3af',
+    if latest_tag is None:
+        try:
+            latest_tag = get_latest_version('andresriancho/w3af',
                                             current_branch)
+        except Exception, e:
+            print('Failed to get the latest tag version: "%s"' % e)
+            return 1
 
-    render(latest_w3af_commit, current_branch)
+    if latest_tag is None:
+        print('Retrieved latest version is None')
+        return 1
 
-    print('Using w3af commit: %s' % latest_w3af_commit)
+    # Get the version as a string
+    latest_tag = str(latest_tag)
+    print('Using latest w3af registry tag %s to render Dockerfile' % latest_tag)
+
+    # Render the dockerfile
+    render(latest_tag, current_branch)
+
     return 0
 
 
-def render(w3af_commit, current_branch):
+def render(latest_tag, current_branch):
     """
     Render the file using the provided args, saves output to Dockerfile
 
-    :param w3af_commit: The latest w3af commit
+    :param latest_tag: The latest w3af commit
     :param current_branch: The latest w3af branch
     :return: None
     """
     template = Template(file(INPUT_FILE).read())
-    rendered_dockerfile = template.render(w3af_commit=w3af_commit,
+    rendered_dockerfile = template.render(latest_w3af_tag=latest_tag,
                                           environment=current_branch)
     file(OUTPUT_FILE, 'w').write(rendered_dockerfile)
-
-
-def get_latest_w3af_image_tag(current_branch):
-    """
-    Uses the registry API to retrieve the latest image tag for the corresponding
-    branch.
-
-    :return: The branch name, something like '<commit-id>-develop' or
-             '<commit-id>-master'
-    """
-    raise NotImplementedError
 
 
 if __name__ == '__main__':

@@ -10,7 +10,7 @@ def parse_arguments():
     Parses the command line arguments
     :return: The parse result from argparse
     """
-    parser = argparse.ArgumentParser(description='Launch a new w3af-api-docker'
+    parser = argparse.ArgumentParser(description='Trigger a new w3af-api-docker'
                                                  ' build using CI REST API')
 
     parser.add_argument('--circle-auth-token',
@@ -24,12 +24,11 @@ def parse_arguments():
                         dest='branch',
                         help='The branch to build (develop|master)')
 
-    parser.add_argument('--w3af-commit',
+    parser.add_argument('--w3af-registry-tag',
                         required=True,
-                        dest='w3af_commit',
-                        help='The w3af commit to use in the Dockerfile FROM'
-                             ' a strong requirement for this setting is to'
-                             ' have a tag named <w3af-commit>-<branch> in'
+                        dest='w3af_registry_tag',
+                        help='The w3af image tag to use in the Dockerfile FROM.'
+                             ' Tag should be available at the registry: '
                              ' https://registry.hub.docker.com/u/andresriancho/'
                              'w3af/tags/manage/')
 
@@ -41,7 +40,7 @@ def main(auth_token, branch, w3af_commit):
     url = 'https://circleci.com/api/v1/project/andresriancho/' \
           'w3af-api-docker/tree/%s?circle-token=%s' % (branch, auth_token)
     headers = {'Content-Type': 'application/json'}
-    data = '{"build_parameters": {"W3AF_COMMIT": "%s"}}' % w3af_commit
+    data = '{"build_parameters": {"W3AF_REGISTRY_TAG": "%s"}}' % w3af_commit
 
     requests.post(url, headers=headers, data=data)
 
