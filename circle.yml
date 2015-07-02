@@ -11,23 +11,20 @@ dependencies:
     - "~/docker"
 
   pre:
-    # And we want to start the django-moth docker instance
+    # We want to start the django-moth docker instance to run tests
     - if [[ -e ~/docker/moth.tar ]]; then docker load -i ~/docker/moth.tar; fi
     - docker pull andresriancho/django-moth
     - mkdir -p ~/docker; docker save andresriancho/django-moth > ~/docker/moth.tar
+
+    # https://circleci.com/docs/background-process
+    - "docker run -p 8000:8000 andresriancho/django-moth":
+        background: true
 
     # Cache the w3af image we'll use as base for w3af-api, we do a pull after
     # the load just to make sure the latest is present.
     - if [[ -e ~/docker/w3af.tar ]]; then docker load -i ~/docker/w3af.tar; fi
     - docker pull andresriancho/w3af:unstable
     - mkdir -p ~/docker; docker save andresriancho/w3af:unstable > ~/docker/w3af.tar
-
-    # https://circleci.com/docs/background-process
-    - "docker run -p 8000:8000 andresriancho/django-moth":
-        background: true
-
-    # Wait for background processes to start
-    - sleep 10
 
     # Render the Dockerfile to use the right FROM statement
     - ci/render-dockerfile.py
