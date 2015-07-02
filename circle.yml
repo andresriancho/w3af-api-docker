@@ -11,6 +11,8 @@ dependencies:
     - "~/docker"
 
   post:
+    - docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}
+    
     # We want to start the django-moth docker instance to run tests
     - if [[ -e ~/docker/moth.tar ]]; then docker load -i ~/docker/moth.tar; fi
     - docker pull andresriancho/django-moth
