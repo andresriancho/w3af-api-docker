@@ -6,7 +6,7 @@ import os
 import sys
 
 from jinja2 import Template
-
+from docker_tag_naming import get_latest_tag
 
 OUTPUT_FILE = 'Dockerfile'
 INPUT_FILE = 'Dockerfile.jinja'
@@ -22,14 +22,8 @@ def main():
     latest_w3af_commit = os.environ.get('W3AF_COMMIT', None)
 
     if latest_w3af_commit is None:
-        print('No W3AF_COMMIT environment variable was specified! When we'
-              ' build in this scenario there is a (big) chance of us'
-              ' trying to use a Dockerfile FROM which will NOT EXIST!'
-              '\n\n'
-              'Consider using the ci/build-docker.py script to manually build'
-              ' this repository or code the get_latest_w3af_image_tag function'
-              ' to retrieve the latest tag from the docker registry.')
-        return 1
+        latest_w3af_commit = get_latest_tag('andresriancho/w3af',
+                                            current_branch)
 
     render(latest_w3af_commit, current_branch)
 
