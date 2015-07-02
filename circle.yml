@@ -47,17 +47,17 @@ deployment:
     branch: master
     owner: andresriancho
     commands:
-      - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:${W3AF_COMMIT}-master
+      - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
 
       - docker push andresriancho/w3af-api:latest
-      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-master
+      - docker push andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
 
   staging:
     branch: develop
     owner: andresriancho
     commands:
       - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:develop
-      - docker tag andresriancho/w3af-api:develop andresriancho/w3af-api:${W3AF_COMMIT}-develop
+      - docker tag andresriancho/w3af-api:develop andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
 
       - docker push andresriancho/w3af-api:develop
-      - docker push andresriancho/w3af-api:${W3AF_COMMIT}-develop
+      - docker push andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
