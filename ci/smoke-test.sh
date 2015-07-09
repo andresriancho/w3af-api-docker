@@ -17,6 +17,4 @@ sleep 20
 # Run the tests
 git clone https://github.com/andresriancho/w3af-api-client.git
 cd w3af-api-client
-cat /home/ubuntu/w3af-api-docker/w3af-api-client/w3af_api_client/log.py
-git rev-parse --short HEAD
 nosetests -v -s ci
