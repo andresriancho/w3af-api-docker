@@ -11,6 +11,9 @@ dependencies:
     - "~/docker"
 
   post:
+    # Save docker hub credentials to file
+    - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ci/dockercfg.template > ~/.dockercfg
+
     # We want to start the django-moth docker instance to run tests
     - if [[ -e ~/docker/moth.tar ]]; then docker load -i ~/docker/moth.tar; fi
     - docker pull andresriancho/django-moth
@@ -30,16 +33,13 @@ dependencies:
     - ci/render-dockerfile.py
     - cp Dockerfile $CIRCLE_ARTIFACTS
 
-test:
-  override:
     # Build docker image containing w3af, nginx, uwsgi and supervisord
     - docker build -t andresriancho/w3af-api .
 
+test:
+  override:
     # Run smoke test on docker image
     - ci/smoke-test.sh
-
-    # Save docker hub credentials to file
-    - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ci/dockercfg.template > ~/.dockercfg
 
 
 deployment:
@@ -47,17 +47,19 @@ deployment:
     branch: master
     owner: andresriancho
     commands:
-      - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
+      - docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7} > /tmp/w3af-api-tag.txt
+      - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:`cat /tmp/w3af-api-tag.txt`
 
       - docker push andresriancho/w3af-api:latest
-      - docker push andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
+      - docker push andresriancho/w3af-api:`cat /tmp/w3af-api-tag.txt`
 
   staging:
     branch: develop
     owner: andresriancho
     commands:
+      - docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7} > /tmp/w3af-api-tag.txt
       - docker tag andresriancho/w3af-api:latest andresriancho/w3af-api:develop
-      - docker tag andresriancho/w3af-api:develop andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
+      - docker tag andresriancho/w3af-api:develop andresriancho/w3af-api:`cat /tmp/w3af-api-tag.txt`
 
       - docker push andresriancho/w3af-api:develop
-      - docker push andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
+      - docker push andresriancho/w3af-api:`cat /tmp/w3af-api-tag.txt`
