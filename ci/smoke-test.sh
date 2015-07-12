@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+set -x
+set -e
+
 # Start the docker container that we just built
 docker run -d \
            -v ~/.w3af:/root/.w3af \
