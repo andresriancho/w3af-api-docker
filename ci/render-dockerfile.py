@@ -21,6 +21,10 @@ def main():
     current_branch = os.environ.get('CIRCLE_BRANCH')
     latest_tag = os.environ.get('W3AF_REGISTRY_TAG', None)
 
+    if current_branch is None:
+        print('CIRCLE_BRANCH environment variable is not set.')
+        return 1
+
     if latest_tag is None:
         try:
             latest_tag = get_latest_version('andresriancho/w3af',
@@ -28,6 +32,9 @@ def main():
         except Exception, e:
             print('Failed to get the latest tag version: "%s"' % e)
             return 1
+        else:
+            print('Latest tag in the %s branch is %s' % (current_branch,
+                                                         latest_tag))
 
     if latest_tag is None:
         print('Retrieved latest version is None')
