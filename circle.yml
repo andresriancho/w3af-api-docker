@@ -52,6 +52,8 @@ deployment:
       - docker push andresriancho/w3af-api:latest
       - docker push andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
 
+      - "curl --header 'Content-Type: application/json' --request POST https://circleci.com/api/v1/project/andresriancho/octopus/tree/master?circle-token=$OCTOPUS_TOKEN"
+
   staging:
     branch: develop
     owner: andresriancho
@@ -61,3 +63,5 @@ deployment:
 
       - docker push andresriancho/w3af-api:develop
       - docker push andresriancho/w3af-api:`docker-tag-naming bump andresriancho/w3af-api ${CIRCLE_BRANCH} --commit-id ${CIRCLE_SHA1:0:7}`
+
+      - "curl --header 'Content-Type: application/json' --request POST https://circleci.com/api/v1/project/andresriancho/octopus/tree/develop?circle-token=$OCTOPUS_TOKEN"
